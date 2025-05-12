@@ -1,0 +1,66 @@
+using Gtk 4.0;
+using Adw 1;
+
+menu main-menu {
+    item {
+        label: "About BBase";
+        action: "win.show_about";
+    }
+}
+
+template $MyGtkAppWindow : Adw.ApplicationWindow {
+    title: "BBase";
+    content: Adw.NavigationView repo_view {
+        Adw.NavigationPage {
+            title: "Repos";
+            child: Adw.ToolbarView {
+                [top]
+                Adw.HeaderBar {
+                    Button refresh_button {
+                        icon-name: "view-refresh-symbolic";
+                    }
+                    Adw.Spinner refresh_spinner {
+												visible: false;
+										}
+
+                    [end]
+                    MenuButton {
+                        icon-name: "view-more-symbolic";
+                        menu-model: main-menu;
+                    }
+                }
+
+                content: Box {
+                    orientation: vertical;
+                    margin-top: 12;
+                    margin-bottom: 12;
+                    margin-start: 12;
+                    margin-end: 12;
+                    spacing: 6;
+
+                    Adw.ToastOverlay mytoast {
+                        ScrolledWindow {
+                            hscrollbar-policy: never;
+                            min-content-height: 360;
+                            vexpand: true;
+
+                            child: Box {
+                                orientation: vertical;
+                                spacing: 18;
+                                margin-top: 24;
+                                margin-bottom: 24;
+                                margin-start: 12;
+                                margin-end: 12;
+
+                                Label current_usage {
+                                    label: "Text";
+                                    styles ["title-2"]
+                                }
+                            };
+                        }
+                    }
+                };
+            };
+        }
+    };
+}

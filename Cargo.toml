@@ -1,0 +1,20 @@
+[package]
+name = "bbase"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+adw = { version = "0.7.*", package = "libadwaita", features = ["v1_6"] }
+gtk = { package = "gtk4", version = "0.9.*", features = ["gnome_47", "blueprint"] }
+chrono = { version = "0.4.41", features = ["serde"] }
+serde = { version = "1.0.219", features = ["derive"] }
+tokio = { version = "1", features = ["rt-multi-thread"] }
+async-channel = "2.2.0"
+zbus = {version = "5.6", default-features = false, features = [ "tokio" ]}
+ppd = "0.1.2"
+futures = "0.3.31"
+
+[build-dependencies]
+glib-build-tools = "0.20.0"
