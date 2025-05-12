@@ -3,13 +3,12 @@ mod imp;
 use adw::subclass::prelude::*;
 use adw::Application;
 
-use adw::{prelude::*, ActionRow};
+use adw::prelude::*;
+use futures::StreamExt;
 use glib::{clone, Object};
 use gtk::gio::ActionEntry;
-use gtk::Image;
-use gtk::{gio, glib, NoSelection};
+use gtk::{gio, glib};
 use ppd::PpdProxy;
-use futures::StreamExt;
 
 glib::wrapper! {
     pub struct Window(ObjectSubclass<imp::Window>)
@@ -26,19 +25,22 @@ impl Window {
     fn setup_callbacks(&self) {
         let (sender, receiver) = async_channel::bounded(1);
         crate::runtime().spawn(clone!(
-                #[strong]
-                sender,
-                async move {
-                    let conn = zbus::Connection::system().await.unwrap();
-                    let proxy = PpdProxy::new(&conn).await.unwrap();
-                    let initial_profile = proxy.active_profile().await.unwrap();
-                    sender.send(initial_profile).await.expect("Channel is not open");
-                    let mut signal = proxy.receive_active_profile_changed().await;
-                    while let Some(p) = signal.next().await {
-                        let name = p.get().await.unwrap();
-                        sender.send(name).await.expect("Channel is not open");
-                    }
+            #[strong]
+            sender,
+            async move {
+                let conn = zbus::Connection::system().await.unwrap();
+                let proxy = PpdProxy::new(&conn).await.unwrap();
+                let initial_profile = proxy.active_profile().await.unwrap();
+                sender
+                    .send(initial_profile)
+                    .await
+                    .expect("Channel is not open");
+                let mut signal = proxy.receive_active_profile_changed().await;
+                while let Some(p) = signal.next().await {
+                    let name = p.get().await.unwrap();
+                    sender.send(name).await.expect("Channel is not open");
                 }
+            }
         ));
 
         glib::spawn_future_local(clone!(
@@ -46,10 +48,7 @@ impl Window {
             self,
             async move {
                 while let Ok(response) = receiver.recv().await {
-                    window
-                        .imp()
-                        .current_usage
-                        .set_label(&response);
+                    window.imp().current_usage.set_label(&response);
                 }
             }
         ));

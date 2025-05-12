@@ -6,8 +6,8 @@ use adw::NavigationView;
 use adw::Spinner;
 use adw::ToastOverlay;
 use glib::subclass::InitializingObject;
+use gtk::Label;
 use gtk::{gio, glib, Button, CompositeTemplate};
-use gtk::{Label, ListBox};
 
 // Object for state
 #[derive(CompositeTemplate, Default)]
