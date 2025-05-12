@@ -8,7 +8,6 @@ edition = "2021"
 [dependencies]
 adw = { version = "0.7.*", package = "libadwaita", features = ["v1_6"] }
 gtk = { package = "gtk4", version = "0.9.*", features = ["gnome_47", "blueprint"] }
-chrono = { version = "0.4.41", features = ["serde"] }
 serde = { version = "1.0.219", features = ["derive"] }
 tokio = { version = "1", features = ["rt-multi-thread"] }
 async-channel = "2.2.0"
