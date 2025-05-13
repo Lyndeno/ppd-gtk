@@ -6,8 +6,8 @@ use adw::NavigationView;
 use adw::Spinner;
 use adw::ToastOverlay;
 use glib::subclass::InitializingObject;
-use gtk::Label;
 use gtk::{gio, glib, Button, CompositeTemplate};
+use gtk::{Label, ListBox};
 
 // Object for state
 #[derive(CompositeTemplate, Default)]
@@ -26,8 +26,11 @@ pub struct Window {
     pub mytoast: TemplateChild<ToastOverlay>,
 
     #[template_child]
-    pub repo_view: TemplateChild<NavigationView>,
-    pub repos: RefCell<Option<gio::ListStore>>,
+    pub profile_list: TemplateChild<ListBox>,
+
+    #[template_child]
+    pub profile_view: TemplateChild<NavigationView>,
+    pub profiles: RefCell<Option<gio::ListStore>>,
 }
 
 // Trait for subclassing
@@ -57,6 +60,7 @@ impl ObjectImpl for Window {
         //});
 
         let obj = self.obj();
+        obj.setup_profiles();
         obj.setup_callbacks();
         obj.setup_actions();
     }

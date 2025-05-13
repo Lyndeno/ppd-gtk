@@ -10,7 +10,7 @@ menu main-menu {
 
 template $MyGtkAppWindow : Adw.ApplicationWindow {
     title: "BBase";
-    content: Adw.NavigationView repo_view {
+    content: Adw.NavigationView profile_view {
         Adw.NavigationPage {
             title: "Repos";
             child: Adw.ToolbarView {
@@ -56,6 +56,12 @@ template $MyGtkAppWindow : Adw.ApplicationWindow {
                                     label: "Text";
                                     styles ["title-2"]
                                 }
+
+				ListBox profile_list {
+				    visible: false;
+				    selection-mode: none;
+				    styles ["boxed-list"]
+				}
                             };
                         }
                     }

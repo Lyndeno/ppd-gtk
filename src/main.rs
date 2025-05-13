@@ -1,3 +1,4 @@
+mod profile_object;
 mod window;
 
 use std::sync::OnceLock;

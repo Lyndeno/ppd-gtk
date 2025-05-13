@@ -1,14 +1,18 @@
 mod imp;
 
 use adw::subclass::prelude::*;
+use adw::ActionRow;
 use adw::Application;
 
 use adw::prelude::*;
 use futures::StreamExt;
 use glib::{clone, Object};
 use gtk::gio::ActionEntry;
+use gtk::NoSelection;
 use gtk::{gio, glib};
 use ppd::PpdProxy;
+
+use crate::profile_object::ProfileObject;
 
 glib::wrapper! {
     pub struct Window(ObjectSubclass<imp::Window>)
@@ -20,6 +24,48 @@ glib::wrapper! {
 impl Window {
     pub fn new(app: &Application) -> Self {
         Object::builder().property("application", app).build()
+    }
+
+    fn profiles(&self) -> gio::ListStore {
+        self.imp()
+            .profiles
+            .borrow()
+            .clone()
+            .expect("Error getting profiles")
+    }
+
+    fn setup_profiles(&self) {
+        let model = gio::ListStore::new::<ProfileObject>();
+
+        self.imp().profiles.replace(Some(model));
+
+        let selection_model = NoSelection::new(Some(self.profiles()));
+        self.imp().profile_list.bind_model(
+            Some(&selection_model),
+            clone!(
+                #[weak(rename_to = window)]
+                self,
+                #[upgrade_or_panic]
+                move |obj| {
+                    let repo_object = obj.downcast_ref().expect("Obj should be RepoObject");
+                    let row = window.create_profile_row(repo_object);
+                    row.upcast()
+                }
+            ),
+        );
+
+        self.set_profile_list_visible(&self.profiles());
+        self.profiles().connect_items_changed(clone!(
+            #[weak(rename_to = window)]
+            self,
+            move |profiles, _, _, _| {
+                window.set_profile_list_visible(profiles);
+            }
+        ));
+    }
+
+    fn set_profile_list_visible(&self, profiles: &gio::ListStore) {
+        self.imp().profile_list.set_visible(profiles.n_items() > 0);
     }
 
     fn setup_callbacks(&self) {
@@ -52,6 +98,49 @@ impl Window {
                 }
             }
         ));
+
+        glib::spawn_future_local(clone!(
+            #[weak(rename_to = window)]
+            self,
+            async move {
+                let fut = crate::runtime().spawn(async {
+                    let conn = zbus::Connection::system().await.unwrap();
+                    let proxy = PpdProxy::new(&conn).await.unwrap();
+                    proxy.profiles().await.unwrap()
+                });
+                let profiles = fut.await.unwrap();
+                window.profiles().remove_all();
+                for profile in profiles {
+                    let item = ProfileObject::new(profile);
+                    window.profiles().append(&item);
+                }
+            }
+        ));
+    }
+
+    fn create_profile_row(&self, profile_object: &ProfileObject) -> ActionRow {
+        let row = ActionRow::builder().activatable(true).build();
+        let name = profile_object.name();
+
+        row.connect_activated(clone!(move |_| {
+            crate::runtime().spawn(clone!(
+                #[strong]
+                name,
+                async move {
+                    let conn = zbus::Connection::system().await.unwrap();
+                    let proxy = PpdProxy::new(&conn).await.unwrap();
+                    proxy.set_active_profile(name).await.unwrap();
+                }
+            ));
+        }));
+
+        profile_object
+            .bind_property("name", &row, "title")
+            .bidirectional()
+            .sync_create()
+            .build();
+
+        row
     }
 
     fn setup_actions(&self) {
