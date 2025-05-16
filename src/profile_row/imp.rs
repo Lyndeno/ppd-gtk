@@ -2,7 +2,7 @@ use std::cell::RefCell;
 
 use adw::subclass::prelude::*;
 use glib::Binding;
-use gtk::{glib, CheckButton, CompositeTemplate, Label};
+use gtk::{glib, CheckButton, CompositeTemplate};
 
 // state
 #[derive(Default, CompositeTemplate)]

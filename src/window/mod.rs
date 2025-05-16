@@ -1,15 +1,12 @@
 mod imp;
 
 use adw::subclass::prelude::*;
-use adw::ActionRow;
 use adw::Application;
 
 use adw::prelude::*;
 use futures::StreamExt;
 use glib::{clone, Object};
 use gtk::gio::ActionEntry;
-use gtk::glib::property::PropertySet;
-use gtk::Actionable;
 use gtk::CheckButton;
 use gtk::NoSelection;
 use gtk::{gio, glib};
