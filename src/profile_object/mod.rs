@@ -29,6 +29,7 @@ pub struct ProfileData {
     pub driver: String,
     pub platform_driver: Option<String>,
     pub cpu_driver: Option<String>,
+    pub active: bool,
 }
 
 impl From<Profile> for ProfileData {
@@ -38,6 +39,7 @@ impl From<Profile> for ProfileData {
             driver: v.driver,
             platform_driver: v.platform_driver,
             cpu_driver: v.cpu_driver,
+            active: false,
         }
     }
 }

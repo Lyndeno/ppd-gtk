@@ -12,6 +12,7 @@ use super::ProfileData;
 #[properties(wrapper_type = super::ProfileObject)]
 pub struct ProfileObject {
     #[property(name = "name", get, set, type = String, member = name)]
+    #[property(name = "active", get, set, type = bool, member = active)]
     pub data: RefCell<ProfileData>,
 }
 

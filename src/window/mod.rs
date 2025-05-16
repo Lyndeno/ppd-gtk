@@ -8,11 +8,15 @@ use adw::prelude::*;
 use futures::StreamExt;
 use glib::{clone, Object};
 use gtk::gio::ActionEntry;
+use gtk::glib::property::PropertySet;
+use gtk::Actionable;
+use gtk::CheckButton;
 use gtk::NoSelection;
 use gtk::{gio, glib};
 use ppd::PpdProxy;
 
 use crate::profile_object::ProfileObject;
+use crate::profile_row::ProfileRow;
 
 glib::wrapper! {
     pub struct Window(ObjectSubclass<imp::Window>)
@@ -38,6 +42,8 @@ impl Window {
         let model = gio::ListStore::new::<ProfileObject>();
 
         self.imp().profiles.replace(Some(model));
+        let dummy_row = ProfileRow::new();
+        let dummy_check = dummy_row.imp().check.get();
 
         let selection_model = NoSelection::new(Some(self.profiles()));
         self.imp().profile_list.bind_model(
@@ -48,7 +54,7 @@ impl Window {
                 #[upgrade_or_panic]
                 move |obj| {
                     let repo_object = obj.downcast_ref().expect("Obj should be RepoObject");
-                    let row = window.create_profile_row(repo_object);
+                    let row = window.create_profile_row(repo_object, &dummy_check);
                     row.upcast()
                 }
             ),
@@ -88,7 +94,6 @@ impl Window {
                 }
             }
         ));
-
         glib::spawn_future_local(clone!(
             #[weak(rename_to = window)]
             self,
@@ -118,9 +123,26 @@ impl Window {
         ));
     }
 
-    fn create_profile_row(&self, profile_object: &ProfileObject) -> ActionRow {
-        let row = ActionRow::builder().activatable(true).build();
+    fn create_profile_row(
+        &self,
+        profile_object: &ProfileObject,
+        group: &CheckButton,
+    ) -> ProfileRow {
+        let mut row = ProfileRow::with_profile(profile_object);
+        let check = row.imp().check.get();
+        check.set_group(Some(group));
         let name = profile_object.name();
+        let name2 = name.clone();
+        let name3 = name.clone();
+        row.set_activatable(true);
+        let active_label = self.imp().current_usage.get();
+        let active_binding = active_label
+            .bind_property("label", &check, "active")
+            .transform_to(move |_, v: String| Some(name2 == v))
+            .sync_create()
+            .build();
+
+        row.push_binding(active_binding);
 
         row.connect_activated(clone!(move |_| {
             crate::runtime().spawn(clone!(
@@ -134,11 +156,19 @@ impl Window {
             ));
         }));
 
-        profile_object
-            .bind_property("name", &row, "title")
-            .bidirectional()
-            .sync_create()
-            .build();
+        check.connect_toggled(clone!(move |cb| {
+            if cb.is_active() {
+                crate::runtime().spawn(clone!(
+                    #[strong]
+                    name3,
+                    async move {
+                        let conn = zbus::Connection::system().await.unwrap();
+                        let proxy = PpdProxy::new(&conn).await.unwrap();
+                        proxy.set_active_profile(name3).await.unwrap();
+                    }
+                ));
+            }
+        }));
 
         row
     }
