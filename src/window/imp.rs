@@ -14,16 +14,7 @@ use gtk::{Label, ListBox};
 #[template(file = "res/window.blp")]
 pub struct Window {
     #[template_child]
-    pub refresh_button: TemplateChild<Button>,
-
-    #[template_child]
     pub current_usage: TemplateChild<Label>,
-
-    #[template_child]
-    pub refresh_spinner: TemplateChild<Spinner>,
-
-    #[template_child]
-    pub mytoast: TemplateChild<ToastOverlay>,
 
     #[template_child]
     pub profile_list: TemplateChild<ListBox>,

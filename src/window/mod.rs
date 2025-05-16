@@ -177,10 +177,10 @@ impl Window {
         let action_about = ActionEntry::builder("show_about")
             .activate(move |window: &Self, _, _| {
                 let dialog = adw::AboutDialog::builder()
-                    .application_name("BBase")
+                    .application_name("Power Profiles")
                     .developer_name("Lyndon Sanche")
-                    .website("https://github.com/lyndeno/bbase-client")
-                    .issue_url("https://github.com/lyndeno/bbase-client/issues")
+                    .website("https://github.com/lyndeno/ppd-gtk")
+                    .issue_url("https://github.com/lyndeno/ppd-gtk/issues")
                     .designers(vec!["Lyndon Sanche <lsanche@lyndeno.ca>".to_string()])
                     .version(env!("CARGO_PKG_VERSION"))
                     .developers(vec!["Lyndon Sanche <lsanche@lyndeno.ca>".to_string()])

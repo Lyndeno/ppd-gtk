@@ -3,26 +3,19 @@ using Adw 1;
 
 menu main-menu {
     item {
-        label: "About BBase";
+        label: "About Power Profiles";
         action: "win.show_about";
     }
 }
 
 template $MyGtkAppWindow : Adw.ApplicationWindow {
-    title: "BBase";
+    title: "Power Profiles";
     content: Adw.NavigationView profile_view {
         Adw.NavigationPage {
-            title: "Repos";
+            title: "Power Profiles";
             child: Adw.ToolbarView {
                 [top]
                 Adw.HeaderBar {
-                    Button refresh_button {
-                        icon-name: "view-refresh-symbolic";
-                    }
-                    Adw.Spinner refresh_spinner {
-												visible: false;
-										}
-
                     [end]
                     MenuButton {
                         icon-name: "view-more-symbolic";
@@ -38,33 +31,32 @@ template $MyGtkAppWindow : Adw.ApplicationWindow {
                     margin-end: 12;
                     spacing: 6;
 
-                    Adw.ToastOverlay mytoast {
-                        ScrolledWindow {
-                            hscrollbar-policy: never;
-                            min-content-height: 360;
-                            vexpand: true;
+		    ScrolledWindow {
+			hscrollbar-policy: never;
+			min-content-height: 360;
+			vexpand: true;
 
-                            child: Box {
-                                orientation: vertical;
-                                spacing: 18;
-                                margin-top: 24;
-                                margin-bottom: 24;
-                                margin-start: 12;
-                                margin-end: 12;
+			child: Box {
+			    orientation: vertical;
+			    spacing: 18;
+			    margin-top: 24;
+			    margin-bottom: 24;
+			    margin-start: 12;
+			    margin-end: 12;
 
-                                Label current_usage {
-                                    label: "Text";
-                                    styles ["title-2"]
-                                }
+			    Label current_usage {
+				label: "Text";
+				styles ["title-2"]
+				visible: false;
+			    }
 
-				ListBox profile_list {
-				    visible: false;
-				    selection-mode: none;
-				    styles ["boxed-list"]
-				}
-                            };
-                        }
-                    }
+			    ListBox profile_list {
+				visible: false;
+				selection-mode: none;
+				styles ["boxed-list"]
+			    }
+			};
+		    }
                 };
             };
         }
