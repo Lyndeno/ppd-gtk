@@ -20,11 +20,6 @@ pub fn runtime() -> &'static Runtime {
 }
 
 fn main() -> glib::ExitCode {
-    println!("Hello, world!");
-
-    /*
-     */
-
     // Start graphical app
     gio::resources_register_include!("mainwindow.gresource").expect("Failed to get resource");
 
