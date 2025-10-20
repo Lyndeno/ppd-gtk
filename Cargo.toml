@@ -11,7 +11,7 @@ gtk = { package = "gtk4", version = "0.9.*", features = ["gnome_47", "blueprint"
 serde = { version = "1.0.228", features = ["derive"] }
 tokio = { version = "1", features = ["rt-multi-thread"] }
 async-channel = "2.5.0"
-zbus = {version = "5.11", default-features = false, features = [ "tokio" ]}
+zbus = {version = "5.12", default-features = false, features = [ "tokio" ]}
 ppd = { version = "0.1.7", default-features = false, features = [ "tokio" ]}
 futures = "0.3.31"
 
